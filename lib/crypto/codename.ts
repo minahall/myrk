@@ -1,4 +1,4 @@
-import { te, toBase64, randomBytes } from "./util";
+import { te, toBase64, randomBytes, bs } from "./util";
 
 // 50 words × 6 slots → log2(50^6) ≈ 33.8 bits of entropy.
 // PBKDF2-SHA-256 at 310 000 iterations makes an offline guess expensive;
@@ -32,7 +32,7 @@ export function normalizeCodename(codename: string): string {
 async function baseKey(codename: string): Promise<CryptoKey> {
   return crypto.subtle.importKey(
     "raw",
-    te.encode(normalizeCodename(codename)),
+    bs(te.encode(normalizeCodename(codename))),
     "PBKDF2",
     false,
     ["deriveBits", "deriveKey"]
@@ -45,12 +45,12 @@ export async function deriveMailbox(
   const base = await baseKey(codename);
   const [idBits, replyKey] = await Promise.all([
     crypto.subtle.deriveBits(
-      { name: "PBKDF2", salt: SALT_MAILBOX, iterations: PBKDF2_ITER, hash: "SHA-256" },
+      { name: "PBKDF2", salt: bs(SALT_MAILBOX), iterations: PBKDF2_ITER, hash: "SHA-256" },
       base,
       256
     ),
     crypto.subtle.deriveKey(
-      { name: "PBKDF2", salt: SALT_REPLY, iterations: PBKDF2_ITER, hash: "SHA-256" },
+      { name: "PBKDF2", salt: bs(SALT_REPLY), iterations: PBKDF2_ITER, hash: "SHA-256" },
       base,
       { name: "AES-GCM", length: 256 },
       true,

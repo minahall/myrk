@@ -1,3 +1,5 @@
+import { bs } from "./util";
+
 const RSA_GEN = {
   name: "RSA-OAEP",
   modulusLength: 2048,
@@ -24,11 +26,11 @@ export async function importPrivateJwk(jwk: JsonWebKey): Promise<CryptoKey> {
 }
 
 export async function rsaWrap(publicKey: CryptoKey, aesRaw: Uint8Array): Promise<Uint8Array> {
-  const ct = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, aesRaw);
+  const ct = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, publicKey, bs(aesRaw));
   return new Uint8Array(ct);
 }
 
 export async function rsaUnwrap(privateKey: CryptoKey, wrapped: Uint8Array): Promise<Uint8Array> {
-  const pt = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, wrapped);
+  const pt = await crypto.subtle.decrypt({ name: "RSA-OAEP" }, privateKey, bs(wrapped));
   return new Uint8Array(pt);
 }

@@ -1,4 +1,4 @@
-import { te, toBase64, fromBase64, randomBytes } from "./util";
+import { te, toBase64, fromBase64, randomBytes, bs } from "./util";
 
 // Passphrase-sealed envelope for stashing the journalist's private JWK in
 // localStorage. Not recoverable if the passphrase is lost.
@@ -10,13 +10,13 @@ const VERSION = 1;
 async function derive(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
   const base = await crypto.subtle.importKey(
     "raw",
-    te.encode(passphrase),
+    bs(te.encode(passphrase)),
     "PBKDF2",
     false,
     ["deriveKey"]
   );
   return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt, iterations: ITER, hash: "SHA-256" },
+    { name: "PBKDF2", salt: bs(salt), iterations: ITER, hash: "SHA-256" },
     base,
     { name: "AES-GCM", length: 256 },
     false,
@@ -28,7 +28,11 @@ export async function sealWithPassphrase(plaintext: string, passphrase: string):
   const salt = randomBytes(SALT_LEN);
   const iv = randomBytes(12);
   const key = await derive(passphrase, salt);
-  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, te.encode(plaintext));
+  const ct = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: bs(iv) },
+    key,
+    bs(te.encode(plaintext))
+  );
   return JSON.stringify({
     v: VERSION,
     salt: toBase64(salt),
@@ -42,9 +46,9 @@ export async function openWithPassphrase(sealed: string, passphrase: string): Pr
   if (o.v !== VERSION) throw new Error("unsupported vault version");
   const key = await derive(passphrase, fromBase64(o.salt));
   const pt = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: fromBase64(o.iv) },
+    { name: "AES-GCM", iv: bs(fromBase64(o.iv)) },
     key,
-    fromBase64(o.ct)
+    bs(fromBase64(o.ct))
   );
   return new TextDecoder().decode(pt);
 }

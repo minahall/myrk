@@ -1,3 +1,5 @@
+import { bs } from "./util";
+
 const ALG = { name: "AES-GCM", length: 256 } as const;
 
 export async function generateAesKey(): Promise<CryptoKey> {
@@ -10,7 +12,7 @@ export async function exportAesRaw(key: CryptoKey): Promise<Uint8Array> {
 }
 
 export async function importAesRaw(raw: Uint8Array): Promise<CryptoKey> {
-  return crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
+  return crypto.subtle.importKey("raw", bs(raw), { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
 }
 
 export async function aesEncrypt(
@@ -18,7 +20,7 @@ export async function aesEncrypt(
   iv: Uint8Array,
   data: Uint8Array
 ): Promise<Uint8Array> {
-  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv: bs(iv) }, key, bs(data));
   return new Uint8Array(ct);
 }
 
@@ -27,6 +29,6 @@ export async function aesDecrypt(
   iv: Uint8Array,
   ct: Uint8Array
 ): Promise<Uint8Array> {
-  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct);
+  const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: bs(iv) }, key, bs(ct));
   return new Uint8Array(pt);
 }

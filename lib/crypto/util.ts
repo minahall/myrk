@@ -37,3 +37,9 @@ export function constantTimeEqual(a: Uint8Array, b: Uint8Array): boolean {
   for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
   return diff === 0;
 }
+
+// TypeScript 5.7+ typed Uint8Array generically (`Uint8Array<ArrayBufferLike>`),
+// but Web Crypto's `BufferSource` requires an `ArrayBuffer`-backed view. At
+// runtime our Uint8Arrays are always backed by a plain ArrayBuffer (we never
+// create SharedArrayBuffer), so this helper is a safe compile-time narrowing.
+export const bs = (u: Uint8Array): BufferSource => u as unknown as BufferSource;
