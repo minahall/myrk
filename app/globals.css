@@ -96,8 +96,14 @@ h2 { font-weight: 400; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.15;
 .lede.m0 { margin: 0; }
 .small { font-size: .95rem; }
 .panel { margin-top: 34px; padding: 26px; border: 1px solid rgba(155,227,209,.18); background: rgba(22,37,42,.55); backdrop-filter: blur(6px); }
-textarea { width: 100%; min-height: 76px; resize: vertical; background: transparent; border: 0; border-bottom: 1px solid rgba(232,228,212,.3); color: var(--color-bone); font: 1.1rem/1.6 var(--font-serif); padding: 6px 0; }
-textarea:focus { outline: 0; border-color: var(--color-wisp); }
+textarea, input[type="text"], input[type="email"], input[type="password"] {
+  width: 100%; background: transparent; border: 0;
+  border-bottom: 1px solid rgba(232,228,212,.3);
+  color: var(--color-bone); font: 1.1rem/1.6 var(--font-serif);
+  padding: 8px 0; margin-top: 6px;
+}
+textarea { min-height: 76px; resize: vertical; padding: 6px 0; }
+textarea:focus, input:focus { outline: 0; border-color: var(--color-wisp); }
 .row { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
 .btn { padding: 11px 22px; background: transparent; border: 1px solid var(--color-wisp); color: var(--color-wisp); transition: background .3s, color .3s; }
 .btn:hover:not(:disabled) { background: var(--color-wisp); color: var(--color-murk); }

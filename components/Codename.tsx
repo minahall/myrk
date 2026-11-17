@@ -1,26 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-
-const WORDS = [
-  "pale", "lantern", "ember", "hollow", "thorn", "raven",
-  "moss", "bell", "ash", "tallow", "marsh", "veil",
-  "cinder", "wick", "fen", "crow", "sedge", "bramble",
-  "dusk", "knell",
-];
-
-function generatePreview(): string {
-  // Visual-only placeholder for Session 1. Session 2 replaces this with the
-  // real codename generator that also derives a mailbox ID + reply key.
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
-  return Array.from(bytes, (b) => WORDS[b % WORDS.length]).join(" ");
-}
+import { generateCodename } from "@/lib/crypto/codename";
 
 export default function Codename() {
   const [code, setCode] = useState("");
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
-    setCode(generatePreview());
+    setCode(generateCodename());
   }, []);
 
   const show = () => setRevealed(true);
