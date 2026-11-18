@@ -54,9 +54,15 @@ export default function SendPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(packet),
       });
-      if (!res.ok) throw new Error(`Node A rejected: HTTP ${res.status}`);
-      const j = await res.json();
-      if (j.error) throw new Error(j.error);
+      const bodyText = await res.text();
+      let bodyJson: { error?: string } = {};
+      try { bodyJson = JSON.parse(bodyText); } catch { /* keep raw text */ }
+      if (!res.ok) {
+        throw new Error(
+          `Node A rejected (HTTP ${res.status}): ${bodyJson.error || bodyText.slice(0, 300)}`
+        );
+      }
+      if (bodyJson.error) throw new Error(bodyJson.error);
 
       setStep("Delivered.");
       setCodename(code);
